@@ -108,8 +108,8 @@ CLASS zcl_work_order_validator_a08 IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    " Check if the order has a history (i.e., if it has been modified before)
     DATA(lv_has_history) = check_order_history( iv_work_order_id ).
+    "if check_order_history( iv_work_order_id ) = abap_false.
     IF lv_has_history IS NOT INITIAL.
       rv_valid = abap_false.
       ev_error_message = 'Orden con historial no puede eliminarse.'.

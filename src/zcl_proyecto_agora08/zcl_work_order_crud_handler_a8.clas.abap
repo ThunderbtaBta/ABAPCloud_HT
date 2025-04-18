@@ -63,7 +63,7 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    IF lo_instance->validate_status_and_priority( iv_status = iv_status iv_priority = iv_priority ) = abap_false.
+    IF lo_instance->validate_status_and_priority( EXPORTING iv_status = iv_status iv_priority = iv_priority ) = abap_false.
       rv_message = 'Estado o Prioridad no válido.'.
       rv_valid = abap_false.
       RETURN.
@@ -76,20 +76,13 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
                             status        = iv_status
                             description   = iv_description
                             creation_date = iv_creation_date ).
-*    TRY.
-*        INSERT ztwork_order FROM @ls_work_order.
-*      CATCH cx_sy_open_sql_db INTO DATA(lx_sql_db).
-*        rv_message =  | Work order { iv_work_order_id } was not inserted correctly : { lx_sql_db->get_text(  ) }|  .
-*        rv_valid = abap_false.
-*        RETURN.
-*    ENDTRY.
 
     INSERT ztwork_order_a8 FROM @ls_work_order.
     IF sy-subrc = 0.
-      rv_message =  | Work order { iv_work_order_id } inserted correctly|  .
+      rv_message =  | Orden de Trabajo { iv_work_order_id } registrada correctamente|  .
       rv_valid = abap_true.
     ELSE.
-      rv_message =  | Work order { iv_work_order_id } was not inserted correctly in table|  .
+      rv_message =  | Orden de Trabajo { iv_work_order_id } no fue registrada correctamente|  .
       rv_valid = abap_false.
     ENDIF.
 
@@ -109,11 +102,11 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
     INTO @rv_ls_work_order.
 
     IF sy-subrc = 0.
-      rv_message =  | Work order { iv_work_order_id } exists|  .
+      rv_message =  | Orden de Trabajo { iv_work_order_id } existe|  .
       rv_valid = abap_true.
 
     ELSE.
-      rv_message =  | Work order { iv_work_order_id } Not exists |  .
+      rv_message =  | Orden de Trabajo { iv_work_order_id } no existe |  .
       rv_valid = abap_false.
     ENDIF.
 
@@ -135,7 +128,7 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
     IF lo_instance->validate_delete_order( EXPORTING iv_work_order_id  = iv_work_order_id
                                            IMPORTING ev_error_message = lv_error_message ) = abap_false.
 
-      rv_message = lv_error_message. "| Data validation of deleting work order not valid, please check |  .
+      rv_message = lv_error_message.
       rv_valid = abap_false.
       RETURN.
     ENDIF.
@@ -143,38 +136,17 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
     TRY.
         DELETE FROM ztwork_order_a8 WHERE work_order_id = @iv_work_order_id.
       CATCH cx_sy_open_sql_db INTO DATA(lx_sql_db).
-        rv_message = |Work order { iv_work_order_id } deletion failed: { lx_sql_db->get_text( ) }|.
+        rv_message = |Orden de Trabajo { iv_work_order_id } Fallo: { lx_sql_db->get_text( ) }|.
         rv_valid = abap_false.
         RETURN.
     ENDTRY.
     IF sy-subrc = 0.
-      rv_message = |Work order { iv_work_order_id } deleted successfully|.
+      rv_message = |Orden de Trabajo { iv_work_order_id } Eliminada|.
       rv_valid = abap_true.
     ELSE.
-      rv_message = |Work order { iv_work_order_id } could not be deleted|.
+      rv_message = |Orden de Trabajo { iv_work_order_id } NO se puede eliminar|.
       rv_valid = abap_false.
     ENDIF.
-
-*    SELECT SINGLE FROM ztwork_order_a8
-*    FIELDS *
-*    WHERE work_order_id = @iv_work_order_id
-*    INTO @DATA(ls_work_order_delete).
-*
-*    IF sy-subrc = 0.
-*
-*      DELETE ztwork_order_a8 FROM @ls_work_order_delete.
-*
-*      IF sy-subrc = 0.
-*        rv_valid = abap_true.
-*        RETURN.
-*      ELSE.
-*        rv_valid = abap_false.
-*        RETURN.
-*
-*      ENDIF.
-*
-*    ENDIF.
-
 
   ENDMETHOD.
 
@@ -193,20 +165,17 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
     IF lo_instance->validate_update_order( EXPORTING iv_work_order_id   = iv_work_order_id
                                            IMPORTING ev_error_message = lv_error_message ) = abap_false.
 
-      rv_message = lv_error_message. "| Data validation of updating work order not valid, please check |  .
+      rv_message = lv_error_message.
       rv_valid = abap_false.
       RETURN.
     ENDIF.
-
-
-* this good to validate to if the customer, technician or priority modify exists.
 
     IF lo_instance->validate_create_order( EXPORTING iv_customer_id   = iv_customer_id
                                                          iv_technician_id = iv_technician_id
                                                          iv_priority      = iv_priority
                                                IMPORTING ev_error_message = lv_error_message ) = abap_false.
 
-      rv_message =  lv_error_message. "| Data validation (customer, technician or priority) of updating   work order not valid, please check |  .
+      rv_message =  lv_error_message.
       rv_valid = abap_false.
       RETURN.
     ENDIF.
@@ -225,27 +194,27 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
     IF sy-subrc = 0.
 
       IF ls_work_order-customer_id   NE iv_customer_id.
-        lv_work_order_update = | / Cust Before: { ls_work_order-customer_id }  , After iv_customer_id |.
+        lv_work_order_update = | / Cliente Antes: { ls_work_order-customer_id }  , Id Despues : { iv_customer_id }|.
       ENDIF.
 
       IF ls_work_order-technician_id   NE iv_technician_id.
-        lv_work_order_update = lv_work_order_update && | / Technician Before: { ls_work_order-technician_id }  , After : { iv_technician_id  } |.
+        lv_work_order_update = lv_work_order_update && | / Tecnico Antes: { ls_work_order-technician_id }  , Despues : { iv_technician_id  } |.
       ENDIF.
 
       IF ls_work_order-priority   NE iv_priority.
-        lv_work_order_update = lv_work_order_update && | / Priority Before: { ls_work_order-Priority }  , After : { iv_Priority  } |.
+        lv_work_order_update = lv_work_order_update && | / Prioridad Antes: { ls_work_order-Priority }  , Despues : { iv_Priority  } |.
       ENDIF.
 
       IF ls_work_order-status   NE iv_status.
-        lv_work_order_update = lv_work_order_update && | / Status Before: { ls_work_order-status }  , After : { iv_status  } |.
+        lv_work_order_update = lv_work_order_update && | / Estado Antes: { ls_work_order-status }  , Despues : { iv_status  } |.
       ENDIF.
 
       IF ls_work_order-description   NE iv_description.
-        lv_work_order_update = lv_work_order_update && | / Description Before: { ls_work_order-description }  , After : { iv_description  } |.
+        lv_work_order_update = lv_work_order_update && | / Descripcion Antes: { ls_work_order-description }  , Despues : { iv_description  } |.
       ENDIF.
 
       IF ls_work_order-creation_date   NE iv_creation_date.
-        lv_work_order_update = lv_work_order_update && | / Creation Date Before: { ls_work_order-creation_date }  , After : { iv_creation_date  } |.
+        lv_work_order_update = lv_work_order_update && | / Fecha Antes: { ls_work_order-creation_date }  , Despues : { iv_creation_date  } |.
       ENDIF.
 
       ls_work_order-customer_id   = iv_customer_id.
@@ -258,21 +227,18 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
       TRY.
           UPDATE ztwork_order_a8 FROM @ls_work_order.
         CATCH cx_sy_open_sql_db INTO DATA(lx_sql_db).
-          rv_message =  | Work order { iv_work_order_id } was not updated correctly : { lx_sql_db->get_text(  ) }|  .
+          rv_message =  | Orden de Trabajo { iv_work_order_id } NO se puede actualizar : { lx_sql_db->get_text(  ) }|  .
           rv_valid = abap_false.
           RETURN.
       ENDTRY.
 
       IF lv_work_order_update IS INITIAL.
-        rv_message = |Work order { iv_work_order_id } updated correctly (no changes)|.
+        rv_message = |Orden de Trabajo { iv_work_order_id } Actualizada (no changes)|.
         rv_valid = abap_true.
         RETURN.
       ENDIF.
 
       IF sy-subrc = 0.
-
-        " now creating the history
-        "  select all the rows in table
 
         DATA: ls_work_order_hist TYPE ztwork_orderh_a8.
         DATA: lv_count TYPE i.
@@ -291,15 +257,15 @@ CLASS zcl_work_order_crud_handler_a8 IMPLEMENTATION.
 
         INSERT ztwork_orderh_a8 FROM @ls_work_order_hist.
         IF sy-subrc = 0.
-          rv_message =  | Work order { iv_work_order_id } updated correctly with history in table|  .
+          rv_message =  | Orden de Trabajo { iv_work_order_id } actualizada |  .
           rv_valid = abap_true.
         ELSE.
-          rv_message =  | Work order { iv_work_order_id } not updated correctly with history in table|  .
+          rv_message =  | Orden de Trabajo { iv_work_order_id } no actualizada |  .
           rv_valid = abap_false.
         ENDIF.
 
       ELSE.
-        rv_message =  | Work order { iv_work_order_id } was not updated correctly in table|  .
+        rv_message =  | Orden de Trabajo { iv_work_order_id } no actualizada en la tabla|  .
         rv_valid = abap_false.
       ENDIF.
 

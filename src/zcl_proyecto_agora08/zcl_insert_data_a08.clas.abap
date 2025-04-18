@@ -4,7 +4,7 @@ CLASS zcl_insert_data_a08 DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-  INTERFACES if_oo_adt_classrun.
+    INTERFACES if_oo_adt_classrun.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -13,13 +13,14 @@ ENDCLASS.
 
 CLASS zcl_insert_data_a08 IMPLEMENTATION.
   METHOD if_oo_adt_classrun~main.
- DATA ls_status TYPE ztstatus_a08.
+    DATA ls_status TYPE ztstatus_a08.
     DATA ls_priority TYPE ztpriority_a08.
     DATA ls_customer TYPE ztcustomer_a08.
-      DATA ls_technician TYPE ztechnician_a8.
+    DATA ls_technician TYPE ztechnician_a8.
 
-*    ls_status = VALUE #( status_code = 'PO'
-*                         status_description = 'Pending' ).
+*    ls_status = VALUE #( status_code = 'PE'
+*                        status_description = 'Pending' ).
+*    INSERT  ztstatus_a08 FROM @ls_status.
 *
 *    ls_status = VALUE #( status_code = 'CO'
 *                         status_description = 'Completed' ).
@@ -27,7 +28,8 @@ CLASS zcl_insert_data_a08 IMPLEMENTATION.
 *
 *    ls_priority = VALUE #( priority_code = 'A'
 *                         priority_description = 'High' ).
-*
+*    INSERT  ztpriority_a08 FROM @ls_priority.
+
 *    ls_priority = VALUE #( priority_code = 'B'
 *                         priority_description = 'Low' ).
 *    INSERT  ztpriority_a08 FROM @ls_priority.
@@ -39,9 +41,9 @@ CLASS zcl_insert_data_a08 IMPLEMENTATION.
 *    INSERT  ztcustomer_a08 FROM @ls_customer.
 
     ls_technician = VALUE #( technician_id = '1'
-                         name = 'Harold Trivino '
+                         name = 'Harold Trivino'
                          speciality = 'Developer Senior' ).
-    INSERT  ztechnician_a8 FROM @ls_technician.
+    Insert  ztechnician_a8 FROM @ls_technician.
 
     IF sy-subrc = 0.
       out->write( ' record inserted correctly' ).
@@ -49,5 +51,4 @@ CLASS zcl_insert_data_a08 IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
-
 ENDCLASS.
